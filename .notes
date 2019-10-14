@@ -1,0 +1,38 @@
+# Build image
+docker build -t thenginx .
+
+# Run container
+docker run --name thenginx -d \
+    -p 80:80 -p 443:443 \
+    -v ${PWD}/var.www:/var/www \
+    -v ${PWD}/etc.nginx/nginx.conf:/etc/nginx/nginx.conf \
+    -v ${PWD}/etc.nginx/nginxconfig:/etc/nginx/nginxconfig \
+    -v ${PWD}/etc.nginx/sites-available:/etc/nginx/sites-available \
+    -v ${PWD}/etc.nginx/sites-enabled:/etc/nginx/sites-enabled \
+    thenginx
+
+# Greate new config
+cp ./etc.nginx/sites-available/example.com.conf ./etc.nginx/sites-available/example2.com.conf
+sed -i -E 's/example.com/example2.com/g' ./etc.nginx/sites-available/example2.com.conf
+// create symlink here...
+// check nginx -t and reload
+
+# Comment out SSL related directives in configuration:
+# sed -i -r -E 's/(listen .*443)/\1;#/g; s/(ssl_(certificate|certificate_key|trusted_certificate) )/#;#\1/g' ./etc.nginx/sites-available/example.com.conf
+
+# Uncomment SSL related directives in configuration:
+# sed -i -r -E 's/#?;#//g' ./etc.nginx/sites-available/example.com.conf
+
+# Obtain certificate:
+docker exec -it thenginx certbot certonly --webroot -d example.com -d www.example.com --email kokorin.max@gmail.com -w /var/www/_letsencrypt -n --agree-tos --force-renewal
+
+# Reload NGINX:
+docker exec -it thenginx nginx -t -s reload
+
+# Link config:
+docker exec -it thenginx ln -s /etc/nginx/sites-available/example.com.conf /etc/nginx/sites-enabled/
+
+# Configure Certbot to reload NGINX after success renew:
+docker exec -it thenginx bash -c "echo -e '#\!/bin/bash\nnginx -t && nginx -s reload' | tee /etc/letsencrypt/renewal-hooks/post/nginx-reload.sh && chmod a+x /etc/letsencrypt/renewal-hooks/post/nginx-reload.sh"
+
+
