@@ -27,7 +27,7 @@ create:
 	@cp ./etc.nginx/sites-available/example.com.conf ./etc.nginx/sites-available/${domain}.conf
 	@sed -i -E 's/example.com/${domain}/g' ./etc.nginx/sites-available/${domain}.conf
 	@docker exec -it thenginx ln -s /etc/nginx/sites-available/${domain}.conf /etc/nginx/sites-enabled/
-	@make reload.nginx
+	# @make reload.nginx
 
 # Reload NGINX:
 reload.nginx:
