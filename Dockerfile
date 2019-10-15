@@ -10,6 +10,8 @@ RUN openssl dhparam -out /etc/nginx/dhparam.pem 2048
 # Also configure Certbot to reload NGINX after success renew:
 RUN mkdir -p /var/www/_letsencrypt && \ 
     chown www-data /var/www/_letsencrypt && \
+    mkdir -p /etc/letsencrypt/renewal-hooks/post && \
+    touch /etc/letsencrypt/renewal-hooks/post/nginx-reload.sh && \
     echo -e '#\!/bin/bash\nnginx -t && nginx -s reload' | \
     tee /etc/letsencrypt/renewal-hooks/post/nginx-reload.sh && \
     chmod a+x /etc/letsencrypt/renewal-hooks/post/nginx-reload.sh
