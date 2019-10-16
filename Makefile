@@ -13,6 +13,7 @@ build:
 # Run container
 run:
 	@docker run --name thenginx -d \
+		--network host \
 		-p 80:80 -p 443:443 \
 		-v ${PWD}/var.www:/var/www \
 		-v ${PWD}/etc.nginx/nginx.conf:/etc/nginx/nginx.conf \
