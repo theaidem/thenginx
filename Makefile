@@ -1,5 +1,5 @@
 define check_arg
-	@[ ${1} ] || ( echo ">> ${2} is not set"; exit 1 )
+	@[ ${1} ] || ( echo ">> ${2} is not set, use: ${2}=value"; exit 1 )
 endef
 
 test:
