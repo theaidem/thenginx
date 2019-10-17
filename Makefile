@@ -29,6 +29,13 @@ create:
 	@docker exec -it thenginx ln -s /etc/nginx/sites-available/${domain}.conf /etc/nginx/sites-enabled/
 	# @make reload.nginx
 
+# Delete a config
+delete:
+	$(call check_arg, ${domain}, domain)
+	@rm ./etc.nginx/sites-available/${domain}.conf
+	@rm ./etc.nginx/sites-enabled/${domain}.conf
+	# @make reload.nginx
+
 # Reload NGINX:
 reload.nginx:
 	@docker exec -it thenginx nginx -t
