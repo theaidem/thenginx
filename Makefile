@@ -33,7 +33,7 @@ generate:
 	@make obtain.certificate
 	@sed -i.bak -r -E 's/#?#;//g' ./etc.nginx/sites-available/${domain}.conf
 	@make reload.nginx
-	@curl -I https://${domain}
+	@sleep 5 && curl -I https://${domain}
 
 # Greate new config
 create:
