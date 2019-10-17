@@ -22,6 +22,7 @@ sed -i -E 's/example.com/example2.com/g' ./etc.nginx/sites-available/example2.co
 
 # Uncomment SSL related directives in configuration:
 # sed -i -r -E 's/#?;#//g' ./etc.nginx/sites-available/example.com.conf
+# sed -i.bak -E 's/#?#;//g' ./etc.nginx/sites-available/example.com.conf
 
 # Obtain certificate:
 docker exec -it thenginx certbot certonly --webroot -d example.com -d www.example.com --email kokorin.max@gmail.com -w /var/www/_letsencrypt -n --agree-tos --force-renewal

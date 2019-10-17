@@ -13,6 +13,8 @@ build:
 # Run container
 run:
 	@docker run --name thenginx -d \
+		--network host \
+		--restart always \
 		-p 80:80 -p 443:443 \
 		-v ${PWD}/var.www:/var/www \
 		-v ${PWD}/etc.nginx/nginx.conf:/etc/nginx/nginx.conf \
@@ -21,20 +23,40 @@ run:
 		-v ${PWD}/etc.nginx/sites-enabled:/etc/nginx/sites-enabled \
 		thenginx
 
+# Generate domain with certs
+generate:
+	$(call check_arg, ${domain}, domain)
+	$(call check_arg, ${email}, email)
+	@echo '...generate: ${domain}, email: ${email}'
+	@make create
+	@make ls
+	@make obtain.certificate
+	@sed -i.bak -r -E 's/#?#;//g' ./etc.nginx/sites-available/${domain}.conf
+	@make reload.nginx
+	@curl -I https://${domain}
+
 # Greate new config
 create:
 	$(call check_arg, ${domain}, domain)
 	@cp ./etc.nginx/sites-available/example.com.conf ./etc.nginx/sites-available/${domain}.conf
 	@sed -i -E 's/example.com/${domain}/g' ./etc.nginx/sites-available/${domain}.conf
 	@docker exec -it thenginx ln -s /etc/nginx/sites-available/${domain}.conf /etc/nginx/sites-enabled/
-	# @make reload.nginx
+	@make reload.nginx
 
 # Delete a config
 delete:
 	$(call check_arg, ${domain}, domain)
 	@rm ./etc.nginx/sites-available/${domain}.conf
 	@rm ./etc.nginx/sites-enabled/${domain}.conf
-	# @make reload.nginx
+	@make reload.nginx
+
+# List available confs
+ls:
+	@ls -all etc.nginx/sites-available
+
+# NGINX conatainer logs:
+logs.nginx:
+	@docker logs --tail=100 -f thenginx
 
 # Reload NGINX:
 reload.nginx:
