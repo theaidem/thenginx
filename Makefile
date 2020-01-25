@@ -52,7 +52,7 @@ delete: ## Delete a nginx config
 	@rm ./etc.nginx/sites-enabled/${domain}.conf
 	@make reload
 
-ls: ## List available configs
+configs: ## List available configs
 	@ls -all etc.nginx/sites-available
 
 logs: ## Nginx conatainer logs
@@ -66,3 +66,9 @@ certificate: ## Obtain certificate for domain
 	$(call check_arg, ${domain}, domain)
 	$(call check_arg, ${email}, email)
 	@docker exec -it ${PROJECTNAME} certbot certonly --webroot -d ${domain} -d www.${domain} --email ${email} -w /var/www/_letsencrypt -n --agree-tos --force-renewal
+
+certs: ## List available certificates
+	@docker exec -it ${PROJECTNAME} certbot certificates
+
+renew: ## Renew all previously obtained certificates that are near expiry
+	@docker exec -it ${PROJECTNAME} certbot renew
