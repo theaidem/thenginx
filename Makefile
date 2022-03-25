@@ -39,23 +39,24 @@ generate: ## Generate domain configuration and obtain certificate
 	@make reload
 	@sleep 5 && curl -I https://${domain}
 
-create: ## Greate new nginx config file for domain
+create: ## Create new nginx config file for domain
 	$(call check_arg, ${domain}, domain)
 	@cp ./etc.nginx/sites-available/example.com.conf ./etc.nginx/sites-available/${domain}.conf
 	@sed -i -E 's/example.com/${domain}/g' ./etc.nginx/sites-available/${domain}.conf
 	@docker exec -it ${PROJECTNAME} ln -s /etc/nginx/sites-available/${domain}.conf /etc/nginx/sites-enabled/
 	@make reload
 
-delete: ## Delete a nginx config
+delete: ## Delete a nginx config with letsencrypt certificate
 	$(call check_arg, ${domain}, domain)
 	@rm ./etc.nginx/sites-available/${domain}.conf
 	@rm ./etc.nginx/sites-enabled/${domain}.conf
+	@docker exec -it ${PROJECTNAME} certbot delete --cert-name ${domain}
 	@make reload
 
 configs: ## List available configs
 	@ls -all etc.nginx/sites-available
 
-logs: ## Nginx conatainer logs
+logs: ## Nginx container logs
 	@docker logs --tail=100 -f ${PROJECTNAME}
 
 reload: ## Reload nginx in container
